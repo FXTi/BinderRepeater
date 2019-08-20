@@ -280,7 +280,7 @@ int main(int argc, char **argv) {
         // TODO: If the "Demo" service is not running, getService times out and binder == 0.
         ASSERT(binder != 0);
         Parcel data, reply;
-        binder->transact(atoll(argv[2]), &data, &reply, atoll(argv[4]));
+        binder->transact(atoll(argv[2]), data, &reply, atoll(argv[4]));
     } else {
         INFO("%s service_name cmd base64(data) flag", argv[0]);
     }

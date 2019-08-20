@@ -136,20 +136,18 @@ struct Parcel_model {
 
     Parcel_model(char *data, size_t Dsize, uint64_t mobjects, size_t Osize): 
         mError(0), mData(0), mDataSize(Dsize),
-        mDataCapacity(0), mDataPos(0), mObjects(malloc()), mObjectsSize(Osize),
+        mDataCapacity(0), mDataPos(0), mObjects(0), mObjectsSize(Osize),
         mObjectsCapacity(0), mNextObjectHint(0), mObjectsSorted(0), mFdsKnown(0),
         mHasFds(0), mAllowFds(0), mOwner(0), mOwnerCookie(0) { 
-            string res = base64_decode(string(data));
-            char *resc = res.c_str();
-            mData = malloc(Dsize);
-            memcpy(mData, resc, Dsize);
-            mObjects = malloc(uint64_t);
+            std::string res = base64_decode(std::string(data));
+            mData = (uint8_t*)malloc(Dsize);
+            memcpy(mData, res.c_str(), Dsize);
+            mObjects = (uint64_t*)malloc(uint64_t);
             *mObjects = mobjects;
     }
 };
 
 int main(int argc, char **argv) {
-    printf("%d\n", sizeof(Parcel));
     if (argc == 5) {
         sp<IServiceManager> sm = defaultServiceManager();
         ASSERT(sm != 0);

@@ -168,13 +168,13 @@ int main(int argc, char **argv) {
         ASSERT(binder != 0);
         Parcel reply;
         Parcel_model data(argv[4], atoll(argv[5]), atoll(argv[6]), atoll(argv[6]));
-        status_t err = binder->transact(atoll(argv[2]), *reinterpret_cast<Parcel*>(&data), &reply, atoll(argv[3])) == 0);
+        status_t err = binder->transact(atoll(argv[2]), *reinterpret_cast<Parcel*>(&data), &reply, atoll(argv[3]));
         if (!err) {
             //NO_ERROR = 0
             //Details in http://androidxref.com/9.0.0_r3/xref/system/core/libutils/include/utils/Errors.h#27
-            puts("Sent successfuly.")
+            puts("Sent successfuly.");
         } else {
-            printf("err set to: %d\n", err):
+            printf("err set to: %d\n", err);
         }
         log_reply(&reply);
     } else {
@@ -183,7 +183,3 @@ int main(int argc, char **argv) {
 
     return 0;
 }
-
-/*
-    Single-threaded service, single-threaded client.
- */

@@ -21,7 +21,7 @@
  * alert(), and add(N, 5).
  */
 
-#define LOG_TAG "binder_demo"
+#define LOG_TAG "binder_repeater"
 
 /* For relevant code see:
     frameworks/native/{include,libs}/binder/{IInterface,Parcel}.{h,cpp}
@@ -29,6 +29,7 @@
  */
 
 #include <stdlib.h>
+#include <string>
 
 #include <utils/RefBase.h>
 #include <utils/Log.h>
@@ -225,28 +226,59 @@ sp<IDemo> getDemoServ() {
     return demo;
 }
 
+const std::string base64_chars = 
+             "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+             "abcdefghijklmnopqrstuvwxyz"
+             "0123456789+/";
+
+std::string base64_decode(std::string const& encoded_string) {
+  int in_len = encoded_string.size();
+  int i = 0;
+  int j = 0;
+  int in_ = 0;
+  unsigned char char_array_4[4], char_array_3[3];
+  std::string ret;
+
+  while (in_len-- && ( encoded_string[in_] != '=') && is_base64(encoded_string[in_])) {
+    char_array_4[i++] = encoded_string[in_]; in_++;
+    if (i ==4) {
+      for (i = 0; i <4; i++)
+        char_array_4[i] = base64_chars.find(char_array_4[i]);
+
+      char_array_3[0] = ( char_array_4[0] << 2       ) + ((char_array_4[1] & 0x30) >> 4);
+      char_array_3[1] = ((char_array_4[1] & 0xf) << 4) + ((char_array_4[2] & 0x3c) >> 2);
+      char_array_3[2] = ((char_array_4[2] & 0x3) << 6) +   char_array_4[3];
+
+      for (i = 0; (i < 3); i++)
+        ret += char_array_3[i];
+      i = 0;
+    }
+  }
+
+  if (i) {
+    for (j = 0; j < i; j++)
+      char_array_4[j] = base64_chars.find(char_array_4[j]);
+
+    char_array_3[0] = (char_array_4[0] << 2) + ((char_array_4[1] & 0x30) >> 4);
+    char_array_3[1] = ((char_array_4[1] & 0xf) << 4) + ((char_array_4[2] & 0x3c) >> 2);
+
+    for (j = 0; (j < i - 1); j++) ret += char_array_3[j];
+  }
+
+  return ret;
+}
 
 int main(int argc, char **argv) {
-
-    if (argc == 1) {
-        ALOGD("We're the service");
-
-        defaultServiceManager()->addService(String16("Demo"), new Demo());
-        android::ProcessState::self()->startThreadPool();
-        ALOGD("Demo service is now ready");
-        IPCThreadState::self()->joinThreadPool();
-        ALOGD("Demo service thread joined");
-    } else if (argc == 2) {
-        INFO("We're the client: %s", argv[1]);
-
-        int v = atoi(argv[1]);
-
-        sp<IDemo> demo = getDemoServ();
-        demo->alert();
-        demo->push(v);
-        const int32_t adder = 5;
-        int32_t sum = demo->add(v, adder);
-        ALOGD("Addition result: %i + %i = %i", v, adder, sum);
+    if (argc == 5) {
+        sp<IServiceManager> sm = defaultServiceManager();
+        ASSERT(sm != 0);
+        sp<IBinder> binder = sm->getService(String16(argv[1]));
+        // TODO: If the "Demo" service is not running, getService times out and binder == 0.
+        ASSERT(binder != 0);
+        Parcel data, reply;
+        binder->transact(atoll(argv[2]), data, reply, atoll(argv[4]));
+    } else {
+        INFO("%s service_name cmd base64(data) flag", argv[0]);
     }
 
     return 0;

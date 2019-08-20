@@ -231,6 +231,10 @@ const std::string base64_chars =
              "abcdefghijklmnopqrstuvwxyz"
              "0123456789+/";
 
+inline bool is_base64(unsigned char c) {
+  return (isalnum(c) || (c == '+') || (c == '/'));
+}
+
 std::string base64_decode(std::string const& encoded_string) {
   int in_len = encoded_string.size();
   int i = 0;
@@ -276,7 +280,7 @@ int main(int argc, char **argv) {
         // TODO: If the "Demo" service is not running, getService times out and binder == 0.
         ASSERT(binder != 0);
         Parcel data, reply;
-        binder->transact(atoll(argv[2]), data, reply, atoll(argv[4]));
+        binder->transact(atoll(argv[2]), &data, &reply, atoll(argv[4]));
     } else {
         INFO("%s service_name cmd base64(data) flag", argv[0]);
     }

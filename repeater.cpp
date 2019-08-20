@@ -147,6 +147,19 @@ struct Parcel_model {
     }
 };
 
+void log_reply(Parcel *reply){
+    Parcel_model *r = reinterpret_cast<Parcel_model*>(reply);
+    r->mData[r->mDataSize]
+    int i = 0;
+    for(i = 0; i < r->mDataSize; ++i){
+        printf("%02x ", r->mData[i]);
+        if((i+1) % 16 == 0) 
+            printf("\n");
+    }
+    if(i % 16 != 0)
+        printf("\n");
+}
+
 int main(int argc, char **argv) {
     if (argc == 8) {
         sp<IServiceManager> sm = defaultServiceManager();
@@ -157,6 +170,7 @@ int main(int argc, char **argv) {
         Parcel reply;
         Parcel_model data(argv[4], atoll(argv[5]), atoll(argv[6]), atoll(argv[6]));
         binder->transact(atoll(argv[2]), *reinterpret_cast<Parcel*>(&data), &reply, atoll(argv[3]));
+        log_reply(&reply);
     } else {
         INFO("%s service_name cmd flag base64(data) mDataSize mObjects mObjectsSize", argv[0]);
     }

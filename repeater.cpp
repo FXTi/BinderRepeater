@@ -148,7 +148,7 @@ struct Parcel_model {
 };
 
 int main(int argc, char **argv) {
-    if (argc == 5) {
+    if (argc == 8) {
         sp<IServiceManager> sm = defaultServiceManager();
         ASSERT(sm != 0);
         sp<IBinder> binder = sm->getService(String16(argv[1]));

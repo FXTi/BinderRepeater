@@ -121,7 +121,7 @@ struct Parcel_model {
     size_t              mDataSize;  //useful
     size_t              mDataCapacity;
     mutable size_t      mDataPos;
-    size_t*               mObjects;   //useful
+    binder_size_t*               mObjects;   //useful
     size_t              mObjectsSize;   //useful
     size_t              mObjectsCapacity;
     mutable size_t      mNextObjectHint;
@@ -140,9 +140,9 @@ struct Parcel_model {
         mObjectsCapacity(0), mNextObjectHint(0), mObjectsSorted(0), mFdsKnown(0),
         mHasFds(0), mAllowFds(0), mOwner(0), mOwnerCookie(0) { 
             std::string res = base64_decode(std::string(data));
-            mData = (uint8_t*)malloc(Dsize);
+            mData = (uint8_t*)malloc(Dsize*sizeof(uint8_t));
             memcpy(mData, res.c_str(), Dsize);
-            mObjects = (size_t*)malloc(size_t);
+            mObjects = (binder_size_t*)malloc(sizeof(binder_size_t));
             *mObjects = mobjects;
     }
 };
@@ -156,7 +156,7 @@ int main(int argc, char **argv) {
         ASSERT(binder != 0);
         Parcel reply;
         Parcel_model data(argv[4], atoll(argv[5]), atoll(argv[6]), atoll(argv[6]));
-        binder->transact(atoll(argv[2]), static_cast<Parcel>(data), &reply, atoll(argv[3]));
+        binder->transact(atoll(argv[2]), *reinterpret_cast<Parcel*>(&data), &reply, atoll(argv[3]));
     } else {
         INFO("%s service_name cmd flag base64(data) mDataSize mObjects mObjectsSize", argv[0]);
     }

@@ -149,8 +149,7 @@ struct Parcel_model {
 
 void log_reply(Parcel *reply){
     Parcel_model *r = reinterpret_cast<Parcel_model*>(reply);
-    r->mData[r->mDataSize]
-    int i = 0;
+    size_t i = 0;
     for(i = 0; i < r->mDataSize; ++i){
         printf("%02x ", r->mData[i]);
         if((i+1) % 16 == 0) 
